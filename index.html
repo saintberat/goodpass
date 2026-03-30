@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>goodpass - Şifre Analizi</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #1e293b;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --accent: #3b82f6;
+      --accent-grad: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+      --border: rgba(255, 255, 255, 0.08);
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Outfit', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+
+    .container {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 1.25rem;
+      padding: 2.5rem;
+      width: 100%;
+      max-width: 520px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+    }
+
+    header {
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      background: var(--accent-grad);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .subtitle {
+      font-size: 0.9rem;
+      color: var(--muted);
+      font-weight: 300;
+    }
+
+    .input-group {
+      margin-bottom: 1.5rem;
+    }
+
+    label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--muted);
+      margin-bottom: 0.5rem;
+    }
+
+    .field-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    input {
+      width: 100%;
+      background: #0f172a;
+      border: 1px solid var(--border);
+      border-radius: 0.75rem;
+      padding: 0.9rem 3.5rem 0.9rem 1rem;
+      font-size: 1rem;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+    }
+
+    .toggle-btn {
+      position: absolute;
+      right: 0.75rem;
+      background: transparent;
+      border: none;
+      color: var(--muted);
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.4rem 0.6rem;
+      cursor: pointer;
+      border-radius: 0.5rem;
+    }
+
+    .toggle-btn:hover {
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .meter-section {
+      margin-bottom: 1.5rem;
+    }
+
+    .meter-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      margin-bottom: 0.6rem;
+    }
+
+    #gucMetin {
+      font-weight: 600;
+    }
+
+    .meter-bar {
+      height: 8px;
+      background: #0f172a;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .meter-fill {
+      height: 100%;
+      width: 0%;
+      transition: width 0.4s cubic-bezier(0.17, 0.67, 0.83, 0.67), background 0.3s;
+      border-radius: 10px;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .stat-card {
+      background: #0f172a;
+      padding: 1rem;
+      border-radius: 0.85rem;
+      border: 1px solid var(--border);
+    }
+
+    .stat-title {
+      font-size: 0.65rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.25rem;
+    }
+
+    .stat-value {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .check-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .check-item {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-size: 0.85rem;
+      color: var(--muted);
+      transition: color 0.2s;
+    }
+
+    .check-item.passed {
+      color: var(--success);
+    }
+
+    .dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: 0.2s;
+    }
+
+    .check-item.passed .dot {
+      background: var(--success);
+      border-color: var(--success);
+      box-shadow: 0 0 8px rgba(16, 185, 129, 0.3);
+    }
+
+    hr {
+      border: 0;
+      border-top: 1px solid var(--border);
+      margin: 1.5rem 0;
+    }
+
+    .pwn-btn {
+      width: 100%;
+      background: var(--accent-grad);
+      border: none;
+      color: white;
+      padding: 1rem;
+      border-radius: 0.75rem;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .pwn-btn:hover:not(:disabled) {
+      opacity: 0.9;
+      transform: translateY(-1px);
+    }
+
+    .pwn-btn:active:not(:disabled) {
+      transform: translateY(0);
+    }
+
+    .pwn-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .pwn-result {
+      margin-top: 1rem;
+      padding: 1rem;
+      border-radius: 0.75rem;
+      font-size: 0.85rem;
+      line-height: 1.5;
+      display: none;
+      animation: slideUp 0.3s ease-out;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .pwn-result.safe {
+      display: block;
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+      color: var(--success);
+    }
+
+    .pwn-result.danger {
+      display: block;
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.2);
+      color: var(--danger);
+    }
+
+    .pwn-result.loading {
+      display: block;
+      background: rgba(59, 130, 246, 0.1);
+      border: 1px solid rgba(59, 130, 246, 0.2);
+      color: var(--accent);
+    }
+
+    .footer {
+      font-size: 0.7rem;
+      color: var(--muted);
+      text-align: center;
+      margin-top: 1.5rem;
+      opacity: 0.7;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+    <header>
+      <h1>GoodPass</h1>
+      <div class="subtitle">Entropi tabanlı şifre analizi ve ihlal kontrolü</div>
+    </header>
+
+    <div class="input-group">
+      <label for="sifre">Şifreniz</label>
+      <div class="field-wrap">
+        <input type="password" id="sifre" placeholder="Şifrenizi yazmaya başlayın..." autocomplete="off"
+          spellcheck="false">
+        <button class="toggle-btn" id="gorunBtn" onclick="toggleVisibility()">GÖSTER</button>
+      </div>
+    </div>
+
+    <div class="meter-section">
+      <div class="meter-label">
+        <span>Şifre Gücü</span>
+        <span id="gucMetin" style="color:var(--muted)">—</span>
+      </div>
+      <div class="meter-bar">
+        <div class="meter-fill" id="meterFill"></div>
+      </div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-title">Entropi</div>
+        <div class="stat-value" id="stat-entropi">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-title">Kırma Süresi</div>
+        <div class="stat-value" id="stat-time">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-title">Uzunluk</div>
+        <div class="stat-value" id="stat-len">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-title">Karakter Havuzu</div>
+        <div class="stat-value" id="stat-pool">—</div>
+      </div>
+    </div>
+
+    <div class="check-list">
+      <div class="check-item" id="chk-min8">
+        <div class="dot"></div><span>En az 8 karakter</span>
+      </div>
+      <div class="check-item" id="chk-caps">
+        <div class="dot"></div><span>Büyük harf (A–Z)</span>
+      </div>
+      <div class="check-item" id="chk-low">
+        <div class="dot"></div><span>Küçük harf (a–z)</span>
+      </div>
+      <div class="check-item" id="chk-num">
+        <div class="dot"></div><span>Rakam (0–9)</span>
+      </div>
+      <div class="check-item" id="chk-sym">
+        <div class="dot"></div><span>Özel karakter (!#@...)</span>
+      </div>
+      <div class="check-item" id="chk-repeat">
+        <div class="dot"></div><span>Tekrarlanan karakter yok</span>
+      </div>
+    </div>
+
+    <hr>
+
+    <button class="pwn-btn" id="pwnBtn" onclick="checkPwned()" disabled>
+      <span>⚡</span> İhlal Veritabanında Sorgula
+    </button>
+    <div class="pwn-result" id="pwnResult"></div>
+
+    <div class="footer">
+      K-anonymity (SHA-1 öneki) kullanılır. Şifreniz asla tamamıyla sunuculara gitmez.
+    </div>
+  </div>
+
+  <script>
+    const passwordInput = document.getElementById('sifre');
+    let isVisible = false;
+
+    function toggleVisibility() {
+      isVisible = !isVisible;
+      passwordInput.type = isVisible ? 'text' : 'password';
+      document.getElementById('gorunBtn').textContent = isVisible ? 'GİZLE' : 'GÖSTER';
+    }
+
+    function getPoolSize(str) {
+      let size = 0;
+      if (/[a-z]/.test(str)) size += 26;
+      if (/[A-Z]/.test(str)) size += 26;
+      if (/[0-9]/.test(str)) size += 10;
+      if (/[^a-zA-Z0-9]/.test(str)) size += 32;
+      return size;
+    }
+
+    function calcEntropy(str) {
+      const pool = getPoolSize(str);
+      if (!pool || !str.length) return 0;
+      return Math.round(str.length * Math.log2(pool));
+    }
+
+    function getCrackTime(entropy) {
+      if (entropy === 0) return '—';
+      const seconds = Math.pow(2, entropy) / 1e10; // Assuming 10 GH/s
+      if (seconds < 1) return '< 1 sn';
+      if (seconds < 60) return Math.round(seconds) + ' sn';
+      if (seconds < 3600) return Math.round(seconds / 60) + ' dk';
+      if (seconds < 86400) return Math.round(seconds / 3600) + ' sa';
+      if (seconds < 2592000) return Math.round(seconds / 86400) + ' gün';
+      if (seconds < 31536000) return Math.round(seconds / 2592000) + ' ay';
+      if (seconds < 1e9) return Math.round(seconds / 31536000) + ' yıl';
+      return 'Yüzlerce yıl';
+    }
+
+    function getStrength(entropy) {
+      if (entropy === 0) return { label: '—', percent: 0, color: 'var(--muted)' };
+      if (entropy < 28) return { label: 'KRİTİK', percent: 15, color: 'var(--danger)' };
+      if (entropy < 36) return { label: 'ZAYIF', percent: 35, color: '#f87171' };
+      if (entropy < 60) return { label: 'ORTA', percent: 60, color: 'var(--warning)' };
+      if (entropy < 80) return { label: 'GÜÇLÜ', percent: 85, color: '#34d399' };
+      return { label: 'MÜKEMMEL', percent: 100, color: 'var(--success)' };
+    }
+
+    function updateCheck(id, passed) {
+      const el = document.getElementById(id);
+      if (passed) el.classList.add('passed');
+      else el.classList.remove('passed');
+    }
+
+    function analyze() {
+      const val = passwordInput.value;
+      const resEl = document.getElementById('pwnResult');
+      resEl.className = 'pwn-result';
+
+      if (!val) {
+        document.getElementById('meterFill').style.width = '0%';
+        document.getElementById('gucMetin').textContent = '—';
+        document.getElementById('gucMetin').style.color = 'var(--muted)';
+        ['stat-entropi', 'stat-time', 'stat-len', 'stat-pool'].forEach(id => document.getElementById(id).textContent = '—');
+        document.getElementById('pwnBtn').disabled = true;
+        ['chk-min8', 'chk-caps', 'chk-low', 'chk-num', 'chk-sym', 'chk-repeat'].forEach(id => updateCheck(id, false));
+        return;
+      }
+
+      const entropy = calcEntropy(val);
+      const strength = getStrength(entropy);
+
+      document.getElementById('meterFill').style.width = strength.percent + '%';
+      document.getElementById('meterFill').style.background = strength.color;
+      document.getElementById('gucMetin').textContent = strength.label;
+      document.getElementById('gucMetin').style.color = strength.color;
+
+      document.getElementById('stat-entropi').textContent = entropy + ' bit';
+      document.getElementById('stat-time').textContent = getCrackTime(entropy);
+      document.getElementById('stat-len').textContent = val.length;
+      document.getElementById('stat-pool').textContent = getPoolSize(val);
+
+      updateCheck('chk-min8', val.length >= 8);
+      updateCheck('chk-caps', /[A-Z]/.test(val));
+      updateCheck('chk-low', /[a-z]/.test(val));
+      updateCheck('chk-num', /[0-9]/.test(val));
+      updateCheck('chk-sym', /[^a-zA-Z0-9]/.test(val));
+      updateCheck('chk-repeat', !(/(.)\1{2,}/.test(val)));
+
+      document.getElementById('pwnBtn').disabled = false;
+    }
+
+    async function hashPassword(str) {
+      const encoder = new TextEncoder();
+      const data = encoder.encode(str);
+      const hashBuffer = await crypto.subtle.digest('SHA-1', data);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
+    }
+
+    async function checkPwned() {
+      const val = passwordInput.value;
+      if (!val) return;
+
+      const resEl = document.getElementById('pwnResult');
+      const btn = document.getElementById('pwnBtn');
+
+      resEl.textContent = 'Veritabanı sorgulanıyor...';
+      resEl.className = 'pwn-result loading';
+      btn.disabled = true;
+
+      try {
+        const hash = await hashPassword(val);
+        const prefix = hash.slice(0, 5);
+        const suffix = hash.slice(5);
+
+        const response = await fetch(`https://api.pwnedpasswords.com/range/${prefix}`);
+        const text = await response.text();
+        const lines = text.split('\n');
+        const match = lines.find(line => line.startsWith(suffix));
+
+        if (match) {
+          const count = parseInt(match.split(':')[1]).toLocaleString('tr-TR');
+          resEl.className = 'pwn-result danger';
+          resEl.innerHTML = `<strong>DİKKAT:</strong> Bu şifre daha önce <strong>${count}</strong> kez sızdırılmış. Başka bir şifre seçin.`;
+        } else {
+          resEl.className = 'pwn-result safe';
+          resEl.textContent = 'Güvenli: Bu şifre herhangi bir ihlal veritabanında bulunamadı.';
+        }
+      } catch (error) {
+        resEl.className = 'pwn-result danger';
+        resEl.textContent = 'Hata: Sorgulama yapılamadı. Bağlantınızı kontrol edin.';
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    passwordInput.addEventListener('input', analyze);
+  </script>
+
+</body>
+
+</html>
