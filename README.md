@@ -96,6 +96,3 @@ GoodPass:
 - Şifre gücünü bilimsel olarak hesaplar  
 - Kullanıcıyı yönlendirir  
 - Güvenli şekilde ihlal kontrolü yapar  
-
-Kısacası:  
-Şifreyi yazıyorsun, o da sana “bunu kullanırsan hacklenirsin” deyip hayatını kurtarıyor.
