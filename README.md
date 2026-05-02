@@ -73,7 +73,7 @@ Her kural UI üzerinde anlık olarak işaretlenir.
 
 ---
 
-### 🧨 İhlal Kontrolü (Have I Been Pwned)
+### 🧨 İhlal Kontrolü
 
 Şifre, bilinen veri sızıntılarında var mı diye kontrol edilir.
 
