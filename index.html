@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
 
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>goodpass — şifre analizi</title>
+  <title>goodpass — password analysis</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -34,22 +34,56 @@
       margin-bottom: 28px;
     }
 
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+
     .box h1 {
       font-size: 22px;
       font-weight: 700;
       color: #fff;
-      margin-bottom: 4px;
       letter-spacing: -0.5px;
     }
 
     .box h1 span { color: #6d9fff; }
+
+    .lang-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+      background: #141414;
+      border: 1px solid #282828;
+      border-radius: 6px;
+      padding: 2px;
+    }
+
+    .lang-btn {
+      background: none;
+      border: none;
+      color: #777;
+      font-family: inherit;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 2px 7px;
+      border-radius: 4px;
+      transition: color .15s, background .15s;
+    }
+
+    .lang-btn:hover { color: #ddd; }
+    .lang-btn.active {
+      color: #fff;
+      background: #282828;
+    }
 
     .tagline {
       font-size: 13px;
       color: #777;
     }
 
-    
     .pw-label {
       display: block;
       font-size: 12px;
@@ -102,7 +136,6 @@
 
     .eye:hover { color: #ccc; border-color: #555; }
 
-    
     .metre {
       margin-bottom: 20px;
     }
@@ -139,7 +172,6 @@
       .metre-bar { transition: none; }
     }
 
-    
     .nums {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -169,7 +201,6 @@
       color: #ccc;
     }
 
-    
     .checks {
       list-style: none;
       margin-bottom: 24px;
@@ -208,14 +239,12 @@
       .checks li, .checks li::before { transition: none; }
     }
 
-    
     .sep {
       border: none;
       border-top: 1px solid #222;
       margin: 0 0 20px;
     }
 
-    
     .breach-btn {
       width: 100%;
       background: #6d9fff;
@@ -237,7 +266,6 @@
       .breach-btn { transition: none; }
     }
 
-    
     .result {
       margin-top: 12px;
       padding: 12px 14px;
@@ -281,20 +309,26 @@
 
   <main class="box" role="main">
     <header>
-      <h1>good<span>pass</span></h1>
-      <p class="tagline">şifre gücünü analiz et, ihlal veritabanında sorgula</p>
+      <div class="header-top">
+        <h1>good<span>pass</span></h1>
+        <div class="lang-switch" role="group" aria-label="Language selection">
+          <button type="button" class="lang-btn" data-lang="en">EN</button>
+          <button type="button" class="lang-btn" data-lang="tr">TR</button>
+        </div>
+      </div>
+      <p class="tagline" id="tagline">analyze password strength, query breach database</p>
     </header>
 
-    <label class="pw-label" for="pw">şifre</label>
+    <label class="pw-label" for="pw" id="lblPw">password</label>
     <div class="pw-wrap">
-      <input type="password" id="pw" placeholder="bir şifre yazın…" autocomplete="off" spellcheck="false"
+      <input type="password" id="pw" placeholder="type a password…" autocomplete="off" spellcheck="false"
         aria-describedby="strength-label">
-      <button type="button" class="eye" id="eyeBtn" aria-label="Şifreyi göster">göster</button>
+      <button type="button" class="eye" id="eyeBtn" aria-label="Toggle password visibility">show</button>
     </div>
 
-    <div class="metre" role="group" aria-label="Şifre gücü göstergesi">
+    <div class="metre" role="group" aria-label="Password strength meter">
       <div class="metre-top">
-        <span>güç</span>
+        <span id="lblStrength">strength</span>
         <strong id="strengthTxt" aria-live="polite" style="color:#555">—</strong>
       </div>
       <div class="metre-track" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" id="metreTrack">
@@ -302,47 +336,146 @@
       </div>
     </div>
 
-    <div class="nums" aria-label="İstatistikler">
+    <div class="nums" aria-label="Statistics">
       <div class="num">
-        <small>entropi</small>
+        <small id="lblEntropy">entropy</small>
         <b id="vEntropi">—</b>
       </div>
       <div class="num">
-        <small>kırılma süresi</small>
+        <small id="lblCrack">crack time</small>
         <b id="vTime">—</b>
       </div>
       <div class="num">
-        <small>uzunluk</small>
+        <small id="lblLen">length</small>
         <b id="vLen">—</b>
       </div>
       <div class="num">
-        <small>havuz</small>
+        <small id="lblPool">pool</small>
         <b id="vPool">—</b>
       </div>
     </div>
 
-    <ul class="checks" aria-label="Gereksinimler">
-      <li id="c8">en az 8 karakter</li>
-      <li id="cUp">büyük harf (A–Z)</li>
-      <li id="cLo">küçük harf (a–z)</li>
-      <li id="cDi">rakam (0–9)</li>
-      <li id="cSp">özel karakter</li>
-      <li id="cRp">ardışık tekrar yok</li>
+    <ul class="checks" aria-label="Requirements">
+      <li id="c8">at least 8 characters</li>
+      <li id="cUp">uppercase letter (A–Z)</li>
+      <li id="cLo">lowercase letter (a–z)</li>
+      <li id="cDi">number (0–9)</li>
+      <li id="cSp">special character</li>
+      <li id="cRp">no consecutive repeats</li>
     </ul>
 
     <hr class="sep">
 
     <button class="breach-btn" id="breachBtn" type="button" disabled aria-live="polite">
-      ihlal veritabanında ara
+      search in breach database
     </button>
     <div class="result" id="out" role="status" aria-live="polite"></div>
 
-    <footer>
-      k-anonimlik (sha-1 prefix) — şifren sunucuya hiç gönderilmez
+    <footer id="footerNote">
+      k-anonymity (sha-1 prefix) — your password is never sent to the server
     </footer>
   </main>
 
   <script>
+    const i18n = {
+      en: {
+        title: 'goodpass — password analysis',
+        tagline: 'analyze password strength, query breach database',
+        pwLabel: 'password',
+        placeholder: 'type a password…',
+        show: 'show',
+        hide: 'hide',
+        strength: 'strength',
+        entropy: 'entropy',
+        crackTime: 'crack time',
+        length: 'length',
+        pool: 'pool',
+        c8: 'at least 8 characters',
+        cUp: 'uppercase letter (A–Z)',
+        cLo: 'lowercase letter (a–z)',
+        cDi: 'number (0–9)',
+        cSp: 'special character',
+        cRp: 'no consecutive repeats',
+        breachBtn: 'search in breach database',
+        footer: 'k-anonymity (sha-1 prefix) — your password is never sent to the server',
+        levels: {
+          critical: 'critical',
+          weak: 'weak',
+          medium: 'medium',
+          strong: 'strong',
+          excellent: 'excellent'
+        },
+        times: {
+          subSec: '< 1 sec',
+          sec: ' sec',
+          min: ' min',
+          hr: ' hr',
+          day: ' days',
+          month: ' mo',
+          year: ' yr',
+          centuries: 'centuries'
+        },
+        breachWait: 'checking…',
+        breachBad: function(cnt) {
+          return '<b>warning:</b> this password has been breached ' + cnt + ' times. recommended to change.';
+        },
+        breachOk: 'this password was not found in known breach databases.',
+        breachErr: 'query failed — check your connection.'
+      },
+      tr: {
+        title: 'goodpass — şifre analizi',
+        tagline: 'şifre gücünü analiz et, ihlal veritabanında sorgula',
+        pwLabel: 'şifre',
+        placeholder: 'bir şifre yazın…',
+        show: 'göster',
+        hide: 'gizle',
+        strength: 'güç',
+        entropy: 'entropi',
+        crackTime: 'kırılma süresi',
+        length: 'uzunluk',
+        pool: 'havuz',
+        c8: 'en az 8 karakter',
+        cUp: 'büyük harf (A–Z)',
+        cLo: 'küçük harf (a–z)',
+        cDi: 'rakam (0–9)',
+        cSp: 'özel karakter',
+        cRp: 'ardışık tekrar yok',
+        breachBtn: 'ihlal veritabanında ara',
+        footer: 'k-anonimlik (sha-1 prefix) — şifren sunucuya hiç gönderilmez',
+        levels: {
+          critical: 'kritik',
+          weak: 'zayıf',
+          medium: 'orta',
+          strong: 'güçlü',
+          excellent: 'mükemmel'
+        },
+        times: {
+          subSec: '< 1 sn',
+          sec: ' sn',
+          min: ' dk',
+          hr: ' sa',
+          day: ' gün',
+          month: ' ay',
+          year: ' yıl',
+          centuries: 'yüzlerce yıl'
+        },
+        breachWait: 'sorgulanıyor…',
+        breachBad: function(cnt) {
+          return '<b>dikkat:</b> bu şifre ' + cnt + ' kez sızdırılmış. değiştirmeniz önerilir.';
+        },
+        breachOk: 'bu şifre bilinen ihlal veritabanlarında bulunamadı.',
+        breachErr: 'sorgu başarısız — bağlantınızı kontrol edin.'
+      }
+    };
+
+    var currentLang = 'en';
+    try {
+      var savedLang = localStorage.getItem('goodpass_lang');
+      if (savedLang === 'tr' || savedLang === 'en') {
+        currentLang = savedLang;
+      }
+    } catch (_) {}
+
     var pw = document.getElementById('pw');
     var bar = document.getElementById('metreBar');
     var track = document.getElementById('metreTrack');
@@ -351,12 +484,65 @@
     var out = document.getElementById('out');
     var eyeBtn = document.getElementById('eyeBtn');
     var vis = false;
+    var lastBreachResult = null;
+
+    function applyLanguage(lang) {
+      currentLang = lang;
+      document.documentElement.lang = lang;
+      try { localStorage.setItem('goodpass_lang', lang); } catch (_) {}
+
+      document.querySelectorAll('.lang-btn').forEach(function(b) {
+        b.classList.toggle('active', b.getAttribute('data-lang') === lang);
+      });
+
+      var t = i18n[lang];
+      document.title = t.title;
+      document.getElementById('tagline').textContent = t.tagline;
+      document.getElementById('lblPw').textContent = t.pwLabel;
+      pw.placeholder = t.placeholder;
+      eyeBtn.textContent = vis ? t.hide : t.show;
+      eyeBtn.setAttribute('aria-label', vis ? t.hide : t.show);
+      document.getElementById('lblStrength').textContent = t.strength;
+      document.getElementById('lblEntropy').textContent = t.entropy;
+      document.getElementById('lblCrack').textContent = t.crackTime;
+      document.getElementById('lblLen').textContent = t.length;
+      document.getElementById('lblPool').textContent = t.pool;
+      document.getElementById('c8').textContent = t.c8;
+      document.getElementById('cUp').textContent = t.cUp;
+      document.getElementById('cLo').textContent = t.cLo;
+      document.getElementById('cDi').textContent = t.cDi;
+      document.getElementById('cSp').textContent = t.cSp;
+      document.getElementById('cRp').textContent = t.cRp;
+      btn.textContent = t.breachBtn;
+      document.getElementById('footerNote').textContent = t.footer;
+
+      // Re-render calculated values if password is typed
+      renderAnalysis();
+
+      if (lastBreachResult) {
+        if (lastBreachResult.type === 'bad') {
+          out.innerHTML = t.breachBad(lastBreachResult.count.toLocaleString(lang === 'tr' ? 'tr-TR' : 'en-US'));
+        } else if (lastBreachResult.type === 'ok') {
+          out.textContent = t.breachOk;
+        } else if (lastBreachResult.type === 'err') {
+          out.textContent = t.breachErr;
+        }
+      }
+    }
+
+    document.querySelectorAll('.lang-btn').forEach(function(b) {
+      b.onclick = function() {
+        var l = b.getAttribute('data-lang');
+        if (l !== currentLang) applyLanguage(l);
+      };
+    });
 
     eyeBtn.onclick = function () {
       vis = !vis;
       pw.type = vis ? 'text' : 'password';
-      eyeBtn.textContent = vis ? 'gizle' : 'göster';
-      eyeBtn.setAttribute('aria-label', vis ? 'Şifreyi gizle' : 'Şifreyi göster');
+      var t = i18n[currentLang];
+      eyeBtn.textContent = vis ? t.hide : t.show;
+      eyeBtn.setAttribute('aria-label', vis ? t.hide : t.show);
     };
 
     function pool(s) {
@@ -375,24 +561,26 @@
 
     function crack(e) {
       if (!e) return '—';
+      var t = i18n[currentLang].times;
       var sec = Math.pow(2, e) / 1e10;
-      if (sec < 1) return '< 1 sn';
-      if (sec < 60) return Math.round(sec) + ' sn';
-      if (sec < 3600) return Math.round(sec / 60) + ' dk';
-      if (sec < 86400) return Math.round(sec / 3600) + ' sa';
-      if (sec < 2592000) return Math.round(sec / 86400) + ' gün';
-      if (sec < 31536000) return Math.round(sec / 2592000) + ' ay';
-      if (sec < 1e9) return Math.round(sec / 31536000) + ' yıl';
-      return 'yüzlerce yıl';
+      if (sec < 1) return t.subSec;
+      if (sec < 60) return Math.round(sec) + t.sec;
+      if (sec < 3600) return Math.round(sec / 60) + t.min;
+      if (sec < 86400) return Math.round(sec / 3600) + t.hr;
+      if (sec < 2592000) return Math.round(sec / 86400) + t.day;
+      if (sec < 31536000) return Math.round(sec / 2592000) + t.month;
+      if (sec < 1e9) return Math.round(sec / 31536000) + t.year;
+      return t.centuries;
     }
 
     function strength(e) {
+      var lv = i18n[currentLang].levels;
       if (!e) return { t: '—', w: 0, c: '#555' };
-      if (e < 28) return { t: 'kritik', w: 15, c: '#e55' };
-      if (e < 36) return { t: 'zayıf', w: 35, c: '#e88' };
-      if (e < 60) return { t: 'orta', w: 55, c: '#da3' };
-      if (e < 80) return { t: 'güçlü', w: 82, c: '#5cb87a' };
-      return { t: 'mükemmel', w: 100, c: '#5cb87a' };
+      if (e < 28) return { t: lv.critical, w: 15, c: '#e55' };
+      if (e < 36) return { t: lv.weak, w: 35, c: '#e88' };
+      if (e < 60) return { t: lv.medium, w: 55, c: '#da3' };
+      if (e < 80) return { t: lv.strong, w: 82, c: '#5cb87a' };
+      return { t: lv.excellent, w: 100, c: '#5cb87a' };
     }
 
     function mark(id, ok) {
@@ -400,10 +588,8 @@
       ok ? el.classList.add('ok') : el.classList.remove('ok');
     }
 
-    pw.oninput = function () {
+    function renderAnalysis() {
       var v = pw.value;
-      out.className = 'result';
-
       if (!v) {
         bar.style.width = '0';
         bar.style.background = 'transparent';
@@ -438,16 +624,23 @@
       mark('cLo', /[a-z]/.test(v));
       mark('cDi', /[0-9]/.test(v));
       mark('cSp', /[^a-zA-Z0-9]/.test(v));
-      mark('cRp', !/(.)\\1{2,}/.test(v));
+      mark('cRp', !/(.)\1{2,}/.test(v));
 
       btn.disabled = false;
+    }
+
+    pw.oninput = function () {
+      out.className = 'result';
+      lastBreachResult = null;
+      renderAnalysis();
     };
 
     btn.onclick = async function () {
       var v = pw.value;
       if (!v) return;
 
-      out.textContent = 'sorgulanıyor…';
+      var t = i18n[currentLang];
+      out.textContent = t.breachWait;
       out.className = 'result show wait';
       btn.disabled = true;
 
@@ -465,20 +658,26 @@
         var hit = body.split('\n').find(function (l) { return l.startsWith(suf); });
 
         if (hit) {
-          var cnt = parseInt(hit.split(':')[1]).toLocaleString('tr-TR');
-          out.innerHTML = '<b>dikkat:</b> bu şifre ' + cnt + ' kez sızdırılmış. değiştirmeniz önerilir.';
+          var cnt = parseInt(hit.split(':')[1], 10);
+          lastBreachResult = { type: 'bad', count: cnt };
+          out.innerHTML = t.breachBad(cnt.toLocaleString(currentLang === 'tr' ? 'tr-TR' : 'en-US'));
           out.className = 'result show bad';
         } else {
-          out.textContent = 'bu şifre bilinen ihlal veritabanlarında bulunamadı.';
+          lastBreachResult = { type: 'ok' };
+          out.textContent = t.breachOk;
           out.className = 'result show ok';
         }
       } catch (_) {
-        out.textContent = 'sorgu başarısız — bağlantınızı kontrol edin.';
+        lastBreachResult = { type: 'err' };
+        out.textContent = t.breachErr;
         out.className = 'result show bad';
       } finally {
         btn.disabled = false;
       }
     };
+
+    // Initialize with saved or default language
+    applyLanguage(currentLang);
   </script>
 
 </body>

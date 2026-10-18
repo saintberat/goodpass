@@ -1,98 +1,99 @@
-## Siteye ulaşmak için: https://saintberat.github.io/goodpass/
-## 🔍 GoodPass Nasıl Çalışır?
+# 🔐 GoodPass
 
-GoodPass, girilen şifreyi anlık olarak analiz eden ve güvenliğini ölçen bir web uygulamasıdır.  
-Her şey tarayıcı içinde çalışır, yani şifreniz cihazınızdan dışarı çıkmaz (ihlal kontrolü hariç, o da güvenli şekilde yapılır).
+## Live Demo: [https://saintberat.github.io/goodpass/](https://saintberat.github.io/goodpass/)
 
----
+A lightweight, privacy-first web application that analyzes password strength in real time and checks for known data breaches without ever exposing your credentials.
 
-### ⚙️ Temel Mantık
-
-Kullanıcı şifreyi yazdıkça:
-
-- Şifrenin karakter yapısı analiz edilir  
-- Entropi hesaplanır  
-- Tahmini kırılma süresi hesaplanır  
-- Güç seviyesi belirlenir  
-- UI anlık olarak güncellenir  
+Everything runs entirely in your browser — your password never leaves your device (breach checks use k-anonymity so raw passwords are never transmitted).
 
 ---
 
-### 🔐 Entropi Hesaplama
+## 🔍 How It Works
 
-Şifre gücü **entropi (bit)** üzerinden hesaplanır.
+### ⚙️ Core Logic
 
-- Karakter havuzu belirlenir (küçük harf, büyük harf, sayı, özel karakter)  
-- Formül: `entropy = uzunluk × log2(havuz)`  
-
-Bu sayede şifrenin ne kadar zor kırılacağı tahmin edilir.
-
----
-
-### ⏱️ Kırılma Süresi
-
-- 10 GH/s brute-force gücü varsayılır  
-- Entropiye göre süre hesaplanır  
-- Sonuç kullanıcıya anlaşılır şekilde gösterilir (sn, dk, yıl vs.)
+As you type your password:
+- Character composition is analyzed in real time
+- Information entropy is calculated
+- Estimated brute-force cracking time is computed
+- Strength tier is determined
+- UI & meter update dynamically
 
 ---
 
-### 📊 Güç Seviyeleri
+### 🔐 Entropy Calculation
 
-Şifre, entropiye göre sınıflandırılır:
+Password strength is evaluated via **information entropy (bits)**:
 
-- KRİTİK  
-- ZAYIF  
-- ORTA  
-- GÜÇLÜ  
-- MÜKEMMEL  
+- **Character Pool ($N$):** Checks for lowercase ($26$), uppercase ($26$), numbers ($10$), and symbols ($32$).
+- **Formula:** 
+  $$\text{Entropy} = L \times \log_2(N)$$
+  *(where $L$ is length and $N$ is pool size)*
 
-Aynı anda progress bar ve renkler güncellenir.
-
----
-
-### ✅ Kural Kontrolleri
-
-Şifre aşağıdaki kriterlere göre kontrol edilir:
-
-- En az 8 karakter  
-- Büyük harf içerme  
-- Küçük harf içerme  
-- Sayı içerme  
-- Özel karakter içerme  
-- Tekrarlayan karakter olmaması  
-
-Her kural UI üzerinde anlık olarak işaretlenir.
+Higher entropy means an exponentially larger search space for brute-force attacks.
 
 ---
 
-### 👁️ Görünürlük Kontrolü
+### ⏱️ Cracking Time Estimation
 
-- Kullanıcı isterse şifreyi gizleyip gösterebilir  
-- Bu işlem tamamen client-side yapılır  
-
----
-
-### 🧨 İhlal Kontrolü
-
-Şifre, bilinen veri sızıntılarında var mı diye kontrol edilir.
-
-Ama olay şu:
-
-- Şifrenin tamamı gönderilmez  
-- Önce SHA-1 hash alınır  
-- Sadece ilk 5 karakter API’ye gönderilir (**k-anonymity**)  
-- Gelen listede eşleşme aranır  
-
-Yani şifren “tam haliyle” hiçbir yere gitmez.
+- Assumes an attacker capable of **$10\text{ GH/s}$** ($10^{10}$ hashes per second)
+- Computes time based on $2^{\text{Entropy}} / 10^{10}$ seconds
+- Formatted into human-readable units (seconds, minutes, hours, days, months, years, or centuries)
 
 ---
 
-### 🛡️ Özet
+### 📊 Strength Levels
 
-GoodPass:
+Categorized into 5 distinct levels based on entropy thresholds:
 
-- Gerçek zamanlı analiz yapar  
-- Şifre gücünü bilimsel olarak hesaplar  
-- Kullanıcıyı yönlendirir  
-- Güvenli şekilde ihlal kontrolü yapar  
+- **Critical** ($< 28\text{ bits}$)
+- **Weak** ($28 - 35\text{ bits}$)
+- **Medium** ($36 - 59\text{ bits}$)
+- **Strong** ($60 - 79\text{ bits}$)
+- **Excellent** ($\ge 80\text{ bits}$)
+
+The progress bar color and width adapt immediately to match the level.
+
+---
+
+### ✅ Rule Checklist
+
+Evaluates the password against industry-standard criteria:
+- At least 8 characters
+- Uppercase letters (`A–Z`)
+- Lowercase letters (`a–z`)
+- Numbers (`0–9`)
+- Special characters / symbols
+- No consecutive repeated characters (e.g., `aaa`)
+
+---
+
+### 👁️ Visibility Toggle
+
+- Toggle between masked (`password`) and plain text (`text`) mode
+- Fully client-side with accessibility support
+
+---
+
+### 🧨 Breach Detection via k-Anonymity
+
+Checks whether the password has appeared in compromised credential databases (Have I Been Pwned API):
+
+1. Computes the **SHA-1** hash of the password locally in the browser using the Web Crypto API.
+2. Sends **only the first 5 characters** of the hash prefix to the API.
+3. The API returns matching hash suffixes and breach counts.
+4. The browser searches for the remaining 35 characters locally.
+
+> **Your password is never sent to any server in whole form.**
+
+---
+
+### 🌐 Language Support
+
+GoodPass includes built-in **English** and **Turkish** language options with instant switching and local preference storage.
+
+---
+
+### 📄 License
+
+MIT License. Free to use, fork, and contribute!
