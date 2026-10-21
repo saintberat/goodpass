@@ -97,3 +97,5 @@ GoodPass includes built-in **English** and **Turkish** language options with ins
 ### 📄 License
 
 MIT License. Free to use, fork, and contribute!
+
+<!-- sync-activity: 2026-10-21T10:30:30Z (9b28026b) -->
